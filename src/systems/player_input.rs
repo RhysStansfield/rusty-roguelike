@@ -18,14 +18,37 @@ pub fn player_input(
 			_ => Point::new(0, 0),
 		};
 
-		if delta.x != 0 || delta.y != 0 {
-			let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
+		let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
+		let (player_entity, destination) = players
+			.iter(ecs)
+			.find_map(|(entity, pos)| Some((*entity, *pos + delta)))
+			.unwrap();
+		let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
 
-			players.iter(ecs).for_each(|(entity, pos)| {
-				let destination = *pos + delta;
+		if delta.x != 0 || delta.y != 0 {
+			let mut hit_something = false;
+
+			enemies
+				.iter(ecs)
+				.filter(|(_, pos)| **pos == destination)
+				.for_each(|(entity, _)| {
+					println!("Issuing attack against {:?}", entity);
+					hit_something = true;
+
+					commands
+						.push(((), WantsToAttack{
+							attacker: player_entity,
+							victim: *entity,
+						}));
+				});
+
+			if !hit_something {
 				commands
-					.push(((), WantsToMove{entity: *entity, destination}));
-			});
+					.push(((), WantsToMove{
+						entity: player_entity,
+						destination
+					}));
+			}
 
 			*turn_state = TurnState::PlayerTurn;
 		}
