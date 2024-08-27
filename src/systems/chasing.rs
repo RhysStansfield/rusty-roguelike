@@ -39,7 +39,6 @@ pub fn chasing(
 			};
 
 			let mut attacked = false;
-			let mut occupied = false;
 			positions
 				.iter(ecs)
 				.filter(|(_, target_pos, _)| **target_pos == destination)
@@ -50,12 +49,10 @@ pub fn chasing(
 								attacker: *entity,
 								victim: *victim
 							}));
-						attacked = true;
-					} else {
-						occupied = true;
 					}
+					attacked = true;
 				});
-			if !attacked && !occupied {
+			if !attacked {
 				commands
 					.push(((), WantsToMove{entity: *entity, destination}));
 			}
