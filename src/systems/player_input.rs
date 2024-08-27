@@ -55,8 +55,6 @@ pub fn player_input(
 						destination
 					}));
 			}
-
-			*turn_state = TurnState::PlayerTurn;
 		}
 
 		if !did_something {
@@ -70,5 +68,7 @@ pub fn player_input(
 				println!("Health after healing: {}", health.current);
 			}
 		}
+
+		*turn_state = TurnState::PlayerTurn;
 	}
 }
